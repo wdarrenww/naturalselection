@@ -63,25 +63,25 @@ Objective: Implement reproduction and trait inheritance with mutation.
 
 ---
 
-## **Phase 3: Ecological Interactions**
+## **Phase 3: Ecological Interactions** ✅
 
 Objective: Introduce predator-prey and basic ecological dynamics.
 
-### **Tasks**
+### **Tasks** ✅
 
-* Add species distinction: prey vs. predator
+* Add species distinction: prey vs. predator ✅
 
-* Predators seek and attack prey for energy
+* Predators seek and attack prey for energy ✅
 
-* Prey flee from nearby predators
+* Prey flee from nearby predators ✅
 
-* Fitness \= survival time \+ reproduction count
+* Fitness = survival time + reproduction count ✅
 
-* Add competition for resources (limited food, push evolution)
+* Add competition for resources (limited food, push evolution) ✅
 
-* Implement carrying capacity (ecological bottlenecks)
+* Implement carrying capacity (ecological bottlenecks) ✅
 
-* Introduce basic terrain/obstacles (affecting pathing)
+* Introduce basic terrain/obstacles (affecting pathing) ✅
 
 ---
 
@@ -251,6 +251,11 @@ Objective: Deepen realism or explore complex dynamics.
    python demo_phase2.py
    ```
 
+4. Run the Phase 3 demo (includes predator-prey dynamics):
+   ```bash
+   python demo_phase3.py
+   ```
+
 ### Controls
 
 - **Space**: Pause/Resume simulation
@@ -259,14 +264,19 @@ Objective: Deepen realism or explore complex dynamics.
 
 ### Features
 
-- Real-time visualization of organisms with trait-based colors (red = fast, green = slow)
-- DNA system with 6 traits: speed, vision, size, metabolism, reproduction_threshold, max_age
-- Trait-to-behavior mapping: speed affects movement, vision affects food detection
+- Real-time visualization of organisms with species-based colors (red = predators, green = prey)
+- DNA system with 9 traits: speed, vision, size, metabolism, reproduction_threshold, max_age, aggression, caution, stamina
+- Predator-prey dynamics: predators hunt prey, prey flee from predators
+- Fitness tracking: survival time + reproduction count
+- Carrying capacity and resource competition
+- Terrain obstacles affecting movement patterns
+- Trait-to-behavior mapping: speed affects movement, vision affects detection, aggression affects hunting
 - Asexual reproduction with gaussian mutation inheritance
-- Death by energy depletion or age limit
+- Death by energy depletion, age limit, or predation
 - Comprehensive trait tracking and statistical analysis
 - Food regeneration and energy-based survival
 - Generation tracking and population dynamics
+- Ecological interactions and coevolution
 
 ## **Tools & Libraries**
 

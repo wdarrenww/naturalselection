@@ -29,11 +29,16 @@ class Simulation:
         self.stats = {
             'total_organisms': 0,
             'alive_organisms': 0,
+            'predators': 0,
+            'prey': 0,
             'total_food': 0,
             'available_food': 0,
             'generation': 0,
             'total_births': 0,
-            'total_deaths': 0
+            'total_deaths': 0,
+            'predator_kills': 0,
+            'average_fitness': 0.0,
+            'food_density': 0.0
         }
         
         # trait history tracking
@@ -44,10 +49,17 @@ class Simulation:
         self.trait_analyzer = TraitAnalyzer(config)
     
     def _generate_initial_organisms(self):
-        for _ in range(self.config.initial_organisms):
+        # generate predators
+        for _ in range(self.config.initial_predators):
             x = random.uniform(0, self.config.world_width)
             y = random.uniform(0, self.config.world_height)
-            self.organisms.append(Organism(x, y, self.config))
+            self.organisms.append(Organism(x, y, self.config, species_type='predator'))
+        
+        # generate prey
+        for _ in range(self.config.initial_prey):
+            x = random.uniform(0, self.config.world_width)
+            y = random.uniform(0, self.config.world_height)
+            self.organisms.append(Organism(x, y, self.config, species_type='prey'))
     
     def update(self):
         if self.paused:
@@ -58,26 +70,36 @@ class Simulation:
         # update environment
         self.environment.update()
         
-        # update organisms
+        # get environment data
         available_food = self.environment.get_available_food()
+        obstacles = self.environment.get_obstacles()
+        
+        # update organisms
         new_organisms = []
         deaths_this_frame = 0
+        predator_kills_this_frame = 0
         
         for organism in self.organisms:
             was_alive = organism.alive
-            organism.update(available_food)
+            organism.update(available_food, self.organisms, obstacles)
             
             # track deaths
             if was_alive and not organism.alive:
                 deaths_this_frame += 1
                 self.stats['total_deaths'] += 1
+                
+                # track predator kills
+                if organism.species_type == 'prey':
+                    predator_kills_this_frame += 1
+                    self.stats['predator_kills'] += 1
             
-            # check for reproduction
-            if organism.can_reproduce() and random.random() < 0.01:  # 1% chance per frame
-                child = organism.reproduce()
-                if child:
-                    new_organisms.append(child)
-                    self.stats['total_births'] += 1
+            # check for reproduction with carrying capacity
+            if organism.can_reproduce() and self._can_reproduce_with_capacity():
+                if random.random() < 0.01:  # 1% chance per frame
+                    child = organism.reproduce()
+                    if child:
+                        new_organisms.append(child)
+                        self.stats['total_births'] += 1
         
         # add new organisms
         self.organisms.extend(new_organisms)
@@ -92,14 +114,37 @@ class Simulation:
         if self.time_step % self.config.trait_log_interval == 0:
             self._log_trait_snapshot()
     
+    def _can_reproduce_with_capacity(self):
+        """check if reproduction is allowed based on carrying capacity"""
+        current_population = len(self.organisms)
+        food_density = self.environment.get_food_density()
+        
+        # if population is near carrying capacity, reduce reproduction chance
+        if current_population >= self.config.carrying_capacity * 0.8:
+            return random.random() < 0.3  # 30% chance instead of 100%
+        
+        # if food is scarce, further reduce reproduction
+        if food_density < self.config.resource_scarcity_threshold:
+            return random.random() < 0.1  # 10% chance
+        
+        return True
+    
     def _update_stats(self):
         self.stats['total_organisms'] = len(self.organisms)
         self.stats['alive_organisms'] = len([org for org in self.organisms if org.alive])
+        self.stats['predators'] = len([org for org in self.organisms if org.species_type == 'predator' and org.alive])
+        self.stats['prey'] = len([org for org in self.organisms if org.species_type == 'prey' and org.alive])
         self.stats['total_food'] = len(self.environment.food_list)
         self.stats['available_food'] = len(self.environment.get_available_food())
+        self.stats['food_density'] = self.environment.get_food_density()
         
         # estimate generation based on births
         self.stats['generation'] = max(1, self.stats['total_births'] // max(1, self.config.initial_organisms))
+        
+        # calculate average fitness
+        if self.organisms:
+            total_fitness = sum(org.fitness_score for org in self.organisms)
+            self.stats['average_fitness'] = total_fitness / len(self.organisms)
     
     def _log_trait_snapshot(self):
         if not self.organisms:
@@ -112,7 +157,10 @@ class Simulation:
             'size': [],
             'metabolism': [],
             'reproduction_threshold': [],
-            'max_age': []
+            'max_age': [],
+            'aggression': [],
+            'caution': [],
+            'stamina': []
         }
         
         for organism in self.organisms:
@@ -123,7 +171,11 @@ class Simulation:
         snapshot = {
             'time_step': self.time_step,
             'population': len(self.organisms),
+            'predators': self.stats['predators'],
+            'prey': self.stats['prey'],
             'generation': self.stats['generation'],
+            'average_fitness': self.stats['average_fitness'],
+            'food_density': self.stats['food_density'],
             'traits': {}
         }
         
@@ -152,7 +204,7 @@ class Simulation:
         # render environment
         self.environment.render(self.screen, (self.camera_x, self.camera_y))
         
-        # render organisms with trait-based colors
+        # render organisms with species-based colors
         for organism in self.organisms:
             if organism.alive:
                 screen_x = int(organism.x - self.camera_x)
@@ -162,7 +214,7 @@ class Simulation:
                 if (0 <= screen_x <= self.config.width and 
                     0 <= screen_y <= self.config.height):
                     
-                    # use trait-based color
+                    # use species-based color
                     color = organism.get_color()
                     size = int(organism.size)
                     
@@ -194,11 +246,16 @@ class Simulation:
         
         stats_text = [
             f"Organisms: {self.stats['alive_organisms']}",
+            f"Predators: {self.stats['predators']}",
+            f"Prey: {self.stats['prey']}",
             f"Food: {self.stats['available_food']}",
             f"Time: {self.time_step}",
             f"Generation: {self.stats['generation']}",
             f"Births: {self.stats['total_births']}",
             f"Deaths: {self.stats['total_deaths']}",
+            f"Kills: {self.stats['predator_kills']}",
+            f"Avg Fitness: {self.stats['average_fitness']:.1f}",
+            f"Food Density: {self.stats['food_density']:.3f}",
             f"Paused: {'Yes' if self.paused else 'No'}"
         ]
         
@@ -227,6 +284,7 @@ class Simulation:
         self.trait_analyzer = TraitAnalyzer(self.config)
         self.stats['total_births'] = 0
         self.stats['total_deaths'] = 0
+        self.stats['predator_kills'] = 0
     
     def get_trait_analyzer(self):
         """get the trait analyzer for external analysis"""

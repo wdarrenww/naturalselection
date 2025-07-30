@@ -21,17 +21,34 @@ class Food:
                 self.available = True
                 self.regen_timer = 0
 
+class Obstacle:
+    def __init__(self, x, y, size, config: SimConfig):
+        self.x = x
+        self.y = y
+        self.size = size
+        self.config = config
+
 class Environment:
     def __init__(self, config: SimConfig):
         self.config = config
         self.food_list = []
+        self.obstacles = []
         self._generate_initial_food()
+        if config.terrain_enabled:
+            self._generate_obstacles()
     
     def _generate_initial_food(self):
         for _ in range(self.config.initial_food_count):
             x = random.uniform(0, self.config.world_width)
             y = random.uniform(0, self.config.world_height)
             self.food_list.append(Food(x, y, self.config))
+    
+    def _generate_obstacles(self):
+        for _ in range(self.config.obstacle_count):
+            x = random.uniform(0, self.config.world_width)
+            y = random.uniform(0, self.config.world_height)
+            size = random.uniform(*self.config.obstacle_size_range)
+            self.obstacles.append(Obstacle(x, y, size, self.config))
     
     def update(self):
         # update all food
@@ -50,7 +67,32 @@ class Environment:
     def get_available_food(self):
         return [food for food in self.food_list if food.available]
     
+    def get_obstacles(self):
+        return self.obstacles
+    
+    def get_food_density(self):
+        """calculate food density for competition mechanics"""
+        available_food = len(self.get_available_food())
+        total_area = self.config.world_width * self.config.world_height
+        return available_food / total_area
+    
     def render(self, screen, camera_offset=(0, 0)):
+        # render obstacles
+        for obstacle in self.obstacles:
+            screen_x = int(obstacle.x - camera_offset[0])
+            screen_y = int(obstacle.y - camera_offset[1])
+            
+            # only render if on screen
+            if (0 <= screen_x <= self.config.width and 
+                0 <= screen_y <= self.config.height):
+                pygame.draw.circle(
+                    screen, 
+                    self.config.obstacle_color, 
+                    (screen_x, screen_y), 
+                    int(obstacle.size)
+                )
+        
+        # render food
         for food in self.food_list:
             if food.available:
                 screen_x = int(food.x - camera_offset[0])

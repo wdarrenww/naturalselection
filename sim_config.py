@@ -44,4 +44,32 @@ class SimConfig:
         self.background_color = (50, 50, 50)
         self.organism_color = (0, 255, 0)
         self.food_color = (255, 255, 0)
-        self.text_color = (255, 255, 255) 
+        self.text_color = (255, 255, 255)
+        
+        # phase 3: predator-prey settings
+        self.initial_predators = 5
+        self.initial_prey = 15
+        self.predator_energy_gain_from_prey = 80
+        self.predator_attack_range = 15
+        self.predator_attack_cooldown = 30  # frames between attacks
+        self.prey_flee_distance = 50
+        self.prey_flee_speed_multiplier = 1.5
+        
+        # fitness tracking
+        self.fitness_survival_weight = 0.7
+        self.fitness_reproduction_weight = 0.3
+        
+        # carrying capacity and competition
+        self.carrying_capacity = 100
+        self.competition_intensity = 0.1
+        self.resource_scarcity_threshold = 0.3  # when food is scarce, increase competition
+        
+        # terrain settings
+        self.terrain_enabled = True
+        self.obstacle_count = 20
+        self.obstacle_size_range = (20, 60)
+        self.obstacle_color = (100, 100, 100)
+        
+        # species colors
+        self.predator_color = (255, 0, 0)  # red
+        self.prey_color = (0, 255, 0)      # green 
