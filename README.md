@@ -5,61 +5,61 @@ The simulator will perform a complex modelling of natural selection and evolutio
 
 ## Roadmap
 
-## **Phase 1: Core Infrastructure & Simulation Loop**
+## **Phase 1: Core Infrastructure & Simulation Loop** ✅
 
 Objective: Build a basic, functioning simulation loop with rudimentary agents in a 2D environment.
 
-### **Tasks**
+### **Tasks** ✅
 
-* Project scaffolding and module structure
+* Project scaffolding and module structure ✅
 
-  * `main.py`, `environment.py`, `organism.py`, `sim_config.py`, etc.
+  * `main.py`, `environment.py`, `organism.py`, `sim_config.py`, etc. ✅
 
-* Initialize Pygame window and event loop
+* Initialize Pygame window and event loop ✅
 
-* Create 2D world grid or continuous space (define coordinate system)
+* Create 2D world grid or continuous space (define coordinate system) ✅
 
-* Add time steps and simulation tick control
+* Add time steps and simulation tick control ✅
 
-* Base `Organism` class with:
+* Base `Organism` class with: ✅
 
-  * Position
+  * Position ✅
 
-  * Movement (random walk)
+  * Movement (random walk) ✅
 
-  * Basic energy system
+  * Basic energy system ✅
 
-* Basic food resources (as stationary points with regen)
+* Basic food resources (as stationary points with regen) ✅
 
-* Organism eats food to gain energy, dies if energy reaches 0
+* Organism eats food to gain energy, dies if energy reaches 0 ✅
 
-* Visualize organisms and food in Pygame
+* Visualize organisms and food in Pygame ✅
 
 ---
 
-## **Phase 2: Heredity and Reproduction**
+## **Phase 2: Heredity and Reproduction** ✅
 
 Objective: Implement reproduction and trait inheritance with mutation.
 
-### **Tasks**
+### **Tasks** ✅
 
-* Add `DNA` (genome) to organisms: dict or list of traits
+* Add `DNA` (genome) to organisms: dict or list of traits ✅
 
-  * Traits: speed, vision, size, metabolism
+  * Traits: speed, vision, size, metabolism, reproduction_threshold, max_age ✅
 
-* Add trait-to-behavior mapping (phenotype mapping)
+* Add trait-to-behavior mapping (phenotype mapping) ✅
 
-* Asexual reproduction
+* Asexual reproduction ✅
 
-  * Reproduce when energy threshold met
+  * Reproduce when energy threshold met ✅
 
-  * Child inherits DNA with mutation (Gaussian or uniform variation)
+  * Child inherits DNA with mutation (Gaussian variation) ✅
 
-* Death by age/energy
+* Death by age/energy ✅
 
-* Visualize trait differences (e.g. color \= speed)
+* Visualize trait differences (color = speed) ✅
 
-* Track and log trait distributions over time
+* Track and log trait distributions over time ✅
 
 ---
 
@@ -231,6 +231,42 @@ Objective: Deepen realism or explore complex dynamics.
 `└── assets/`
 
 ---
+
+## **Usage**
+
+### Running the Simulation
+
+1. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. Run the simulation:
+   ```bash
+   python main.py
+   ```
+
+3. Run the Phase 2 demo (includes analysis):
+   ```bash
+   python demo_phase2.py
+   ```
+
+### Controls
+
+- **Space**: Pause/Resume simulation
+- **R**: Reset simulation
+- **Escape**: Quit
+
+### Features
+
+- Real-time visualization of organisms with trait-based colors (red = fast, green = slow)
+- DNA system with 6 traits: speed, vision, size, metabolism, reproduction_threshold, max_age
+- Trait-to-behavior mapping: speed affects movement, vision affects food detection
+- Asexual reproduction with gaussian mutation inheritance
+- Death by energy depletion or age limit
+- Comprehensive trait tracking and statistical analysis
+- Food regeneration and energy-based survival
+- Generation tracking and population dynamics
 
 ## **Tools & Libraries**
 
