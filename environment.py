@@ -50,14 +50,33 @@ class Environment:
             size = random.uniform(*self.config.obstacle_size_range)
             self.obstacles.append(Obstacle(x, y, size, self.config))
     
-    def update(self):
+    def update(self, weather_system=None):
         # update all food
         for food in self.food_list:
             food.update()
         
-        # add new food occasionally
-        if random.random() < 0.01:  # 1% chance per frame
-            self._add_random_food()
+        # phase 5: apply seasonal food multipliers
+        food_multiplier = 1.0
+        if weather_system:
+            food_multiplier = weather_system.get_food_multiplier()
+        
+        # improved food generation: more frequent and adaptive
+        current_food_count = len(self.get_available_food())
+        target_food_count = int(self.config.initial_food_count * food_multiplier)
+        
+        # if food is scarce, increase generation rate
+        if current_food_count < target_food_count * 0.5:
+            # high food scarcity - generate more food
+            if random.random() < 0.05:  # 5% chance per frame
+                self._add_random_food()
+        elif current_food_count < target_food_count * 0.8:
+            # moderate food scarcity
+            if random.random() < 0.02:  # 2% chance per frame
+                self._add_random_food()
+        else:
+            # normal food levels
+            if random.random() < 0.01:  # 1% chance per frame
+                self._add_random_food()
     
     def _add_random_food(self):
         x = random.uniform(0, self.config.world_width)

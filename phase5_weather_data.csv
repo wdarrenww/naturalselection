@@ -1,0 +1,9 @@
+frame,time_step,is_night,light_level,current_season,food_multiplier,temperature_modifier
+0,1,False,0.0016666666666666668,spring,1.2,5
+50,51,False,0.085,spring,1.2,5
+100,101,False,0.16833333333333333,spring,1.2,5
+150,151,False,0.25166666666666665,spring,1.2,5
+200,201,False,0.335,spring,1.2,5
+250,251,False,0.41833333333333333,spring,1.2,5
+300,301,False,0.5016666666666667,spring,1.2,5
+350,351,False,0.585,spring,1.2,5
